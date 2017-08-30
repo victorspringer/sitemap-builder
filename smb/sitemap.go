@@ -35,8 +35,8 @@ type index struct {
 type URL struct {
 	XMLName          xml.Name `xml:"url"`
 	Location         string   `xml:"loc"`
+	Mobile           bool     `xml:"-"`
 	ChangeFrequency  string   `xml:"changefreq"`
 	Priority         float32  `xml:"priority"`
 	LastModification string   `xml:"lastmod"`
-	Mobile           bool     `xml:"-"`
 }
