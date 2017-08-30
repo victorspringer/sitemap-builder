@@ -41,7 +41,7 @@ func (b *Builder) buildIndex(filesLength int) error {
 			return err
 		}
 
-		if err = writeContent(bt, filePath); err != nil {
+		if err = writeContent(&bt, filePath); err != nil {
 			os.Remove(filePath)
 			return err
 		}
@@ -81,7 +81,7 @@ func (b *Builder) buildURLSet(urlset []*URL) (int, error) {
 				return 0, err
 			}
 
-			if err = writeContent(bt, filePath); err != nil {
+			if err = writeContent(&bt, filePath); err != nil {
 				os.Remove(filePath)
 				return 0, err
 			}
@@ -170,17 +170,19 @@ func (b *Builder) compressFile(path string) error {
 	return nil
 }
 
-func writeContent(content []byte, path string) error {
+func writeContent(content *[]byte, path string) error {
 	file, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY, 0644)
 	if err != nil {
 		return err
 	}
 	defer file.Close()
 
-	_, err = file.Write(content)
+	_, err = file.Write(*content)
 	if err != nil {
 		return err
 	}
+
+	content = nil
 
 	return nil
 }
