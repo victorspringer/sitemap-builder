@@ -5,6 +5,7 @@ import (
 	"bytes"
 	"compress/gzip"
 	"encoding/xml"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"math"
@@ -70,12 +71,17 @@ func (b *Builder) buildURLSet(urlset []*URL) (int, error) {
 			limit = urlsetLength - ((index - 1) * maxItemsLength)
 		}
 		for _, url := range urlset[:limit] {
+			if err := validate(url); err != nil {
+				return 0, err
+			}
+
 			var v interface{}
 			if url.Mobile {
 				v = buildURLMobile(url)
 			} else {
 				v = &url
 			}
+
 			bt, err := xml.Marshal(v)
 			if err != nil {
 				return 0, err
@@ -212,4 +218,22 @@ func buildURLMobile(url *URL) interface{} {
 		Priority:         url.Priority,
 		LastModification: url.LastModification,
 	}
+}
+
+func validate(url *URL) error {
+	now := time.Now().Format(time.RFC3339)
+	if url.Location == "" {
+		return errors.New("location is required")
+	}
+	if url.ChangeFrequency == "" {
+		url.ChangeFrequency = "always"
+	}
+	if url.Priority == 0 {
+		url.Priority = 0.5
+	}
+	if url.LastModification == "" {
+		url.LastModification = now
+	}
+
+	return nil
 }
